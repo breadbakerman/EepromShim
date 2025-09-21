@@ -54,6 +54,52 @@ namespace EepromShim
     }
 
     template <typename T>
+    T getConfig(const T &defaults, uint8_t flags)
+    {
+        T config = {};
+        get(EEPROM_CONFIG_ADDRESS, config);
+        if (config.version == defaults.version)
+        {
+            if (!(flags & EE_SILENT))
+                status(true);
+            config.loaded = true;
+            return config;
+        }
+        else
+        {
+            if (flags & EE_INIT)
+            {
+                checkFlash(flags | EE_INIT);
+                setConfig<T>(defaults);
+            }
+            if (!(flags & EE_SILENT))
+                status(false);
+            return defaults;
+        }
+    }
+
+    template <typename T>
+    void setConfig(const T &config, uint8_t flags)
+    {
+        put(EEPROM_CONFIG_ADDRESS, config);
+#ifndef EEPROM_SERIAL_DISABLE
+        if (!(flags & EE_SILENT))
+            SERIAL.println(F(EE_LOG_PREFIX "Config saved to EEPROM."));
+#endif
+    }
+
+    template <typename T>
+    void wipeConfig(uint8_t flags)
+    {
+        for (uint16_t i = EEPROM_CONFIG_ADDRESS; i < EEPROM_CONFIG_ADDRESS + sizeof(T); ++i)
+            update(i, 0xFF);
+#ifndef EEPROM_SERIAL_DISABLE
+        if (!(flags & EE_SILENT))
+            SERIAL.println(F(EE_LOG_PREFIX "Config wiped from EEPROM." ANSI_DEFAULT));
+#endif
+    }
+
+    template <typename T>
     T &get(int idx, T &t)
     {
 #ifdef EEPROM_h
@@ -118,31 +164,6 @@ namespace EepromShim
             flash.syncBlocks();
         }
 #endif
-    }
-
-    template <typename T>
-    T getConfig(const T &defaults, uint8_t flags)
-    {
-        T config = {};
-        get(EEPROM_CONFIG_ADDRESS, config);
-        if (config.version == defaults.version)
-        {
-            if (!(flags & EE_SILENT))
-                status(true);
-            config.loaded = true;
-            return config;
-        }
-        else
-        {
-            if (flags & EE_INIT)
-            {
-                checkFlash(flags | EE_INIT);
-                setConfig<T>(defaults);
-            }
-            if (!(flags & EE_SILENT))
-                status(false);
-            return defaults;
-        }
     }
 
     bool status(bool ok)
@@ -383,27 +404,6 @@ namespace EepromShim
 #endif
     }
 
-    template <typename T>
-    void setConfig(const T &config, uint8_t flags)
-    {
-        put(EEPROM_CONFIG_ADDRESS, config);
-#ifndef EEPROM_SERIAL_DISABLE
-        if (!(flags & EE_SILENT))
-            SERIAL.println(F(EE_LOG_PREFIX "Config saved to EEPROM."));
-#endif
-    }
-
-    template <typename T>
-    void wipeConfig(uint8_t flags)
-    {
-        for (uint16_t i = EEPROM_CONFIG_ADDRESS; i < EEPROM_CONFIG_ADDRESS + sizeof(T); ++i)
-            update(i, 0xFF);
-#ifndef EEPROM_SERIAL_DISABLE
-        if (!(flags & EE_SILENT))
-            SERIAL.println(F(EE_LOG_PREFIX "Config wiped from EEPROM." ANSI_DEFAULT));
-#endif
-    }
-
     void fill(uint8_t value, uint16_t start, uint16_t end, uint8_t flags)
     {
         if (start >= EEPROM_SIZE || end >= EEPROM_SIZE || start > end)
@@ -506,9 +506,12 @@ namespace EepromShim
         return true;
     }
 
-    // Explicit template instantiations for Configuration type
-    template Configuration init<Configuration>(const Configuration &, uint8_t);
-    template Configuration getConfig<Configuration>(const Configuration &, uint8_t);
-    template void setConfig<Configuration>(const Configuration &, uint8_t);
-    template void wipeConfig<Configuration>(uint8_t);
 }
+
+// Explicit template instantiation for Configuration type
+template Configuration EepromShim::init<Configuration>(const Configuration &, uint8_t);
+template Configuration EepromShim::getConfig<Configuration>(const Configuration &, uint8_t);
+template void EepromShim::setConfig<Configuration>(const Configuration &, uint8_t);
+template void EepromShim::wipeConfig<Configuration>(uint8_t);
+template Configuration &EepromShim::get<Configuration>(int, Configuration &);
+template const Configuration &EepromShim::put<Configuration>(int, const Configuration &);
