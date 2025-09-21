@@ -19,7 +19,7 @@ jobs:
         uses: arduino/compile-sketches@v1
         with:
           fqbn: arduino:avr:uno
-          # enable-deltas-report: true
+          enable-deltas-report: true
           sketch-paths: |
             # Compile all example sketches
             - examples/
