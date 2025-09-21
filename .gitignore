@@ -1,0 +1,26 @@
+# Arduino/PlatformIO
+.pio/
+*.bin
+*.hex
+*.elf
+
+# Arduino IDE
+__vm/
+.build/
+*.autosave
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak

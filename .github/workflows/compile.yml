@@ -1,0 +1,29 @@
+name: Library Compile Test
+
+# The workflow will run on every push and pull request to the repository
+on:
+  - push
+  - pull_request
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # This step makes the contents of the repository available to the workflow
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Test that the library compiles by compiling example sketches
+      - name: Test Library Compilation
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: arduino:avr:uno
+          # enable-deltas-report: true
+          sketch-paths: |
+            # Compile all example sketches
+            - examples/
+          libraries: |
+            # Use this library
+            - source-path: ./
+              name: AsyncBuzzer

@@ -1,0 +1,52 @@
+{
+  "name": "EepromShim",
+  "version": "1.0.0",
+  "description": "EEPROM wrapper with QSPI fallback for Arduino boards",
+  "keywords": [
+    "eeprom",
+    "flash",
+    "storage",
+    "memory",
+    "samd51",
+    "avr",
+    "qspi",
+    "persistence",
+    "configuration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/breadbakerman/EepromShim.git"
+  },
+  "authors": [
+    {
+      "name": "breadbakerman",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/breadbakerman/EepromShim",
+  "dependencies": {
+    "adafruit/Adafruit SPIFlash": "^4.0.0"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "platforms": [
+    "atmelavr",
+    "atmelsam"
+  ],
+  "headers": "EepromShim.h",
+  "examples": [
+    "examples/BasicEeprom/BasicEeprom.ino",
+    "examples/ConfigurationStorage/ConfigurationStorage.ino"
+  ],
+  "export": {
+    "include": [
+      "*.h",
+      "*.cpp",
+      "examples/*",
+      "LICENSE",
+      "README.md"
+    ]
+  }
+}
