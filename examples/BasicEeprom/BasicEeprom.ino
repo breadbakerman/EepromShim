@@ -53,7 +53,7 @@ void setup()
   EepromShim::put(BYTE_ADDR, testByte);
 
   // Write string character by character
-  for (int i = 0; i < testString.length(); i++)
+  for (size_t i = 0; i < testString.length(); i++)
   {
     EepromShim::write(STRING_ADDR + i, testString[i]);
   }
@@ -83,10 +83,15 @@ void setup()
   readString[31] = 0; // ensure null termination
 
   Serial.println("\n3. Results:");
-  Serial.printf("Integer: %d (expected: %d)\n", readInt, testInt);
-  Serial.printf("Float: %.5f (expected: %.5f)\n", readFloat, testFloat);
-  Serial.printf("Byte: %d (expected: %d)\n", readByte, testByte);
-  Serial.printf("String: '%s' (expected: '%s')\n", readString, testString.c_str());
+  char buffer[100];
+  sprintf(buffer, "Integer: %d (expected: %d)", readInt, testInt);
+  Serial.println(buffer);
+  sprintf(buffer, "Float: %.5f (expected: %.5f)", readFloat, testFloat);
+  Serial.println(buffer);
+  sprintf(buffer, "Byte: %d (expected: %d)", readByte, testByte);
+  Serial.println(buffer);
+  sprintf(buffer, "String: '%s' (expected: '%s')", readString, testString.c_str());
+  Serial.println(buffer);
 
   // Verify data integrity
   bool success = (readInt == testInt) &&

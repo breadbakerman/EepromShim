@@ -37,14 +37,15 @@ const int CONFIG_ADDR = 0;
 
 // Default configuration
 AppConfig defaultConfig = {
-    .magic = CONFIG_MAGIC,
-    .version = CONFIG_VERSION,
-    .deviceName = "MyDevice",
-    .brightness = 128,
-    .sensorOffset = 0.0,
-    .enableLogging = true,
-    .sampleRate = 100,
-    .checksum = 0};
+    CONFIG_MAGIC,   // magic
+    CONFIG_VERSION, // version
+    "MyDevice",     // deviceName
+    128,            // brightness
+    0.0,            // sensorOffset
+    true,           // enableLogging
+    100,            // sampleRate
+    0               // checksum
+};
 
 // Calculate simple checksum for configuration
 uint8_t calculateChecksum(const AppConfig &config)
@@ -75,8 +76,10 @@ bool loadConfig(AppConfig &config)
 
     if (config.version != CONFIG_VERSION)
     {
-        Serial.printf("Version mismatch (got %d, expected %d) - loading defaults\n",
-                      config.version, CONFIG_VERSION);
+        char buffer[80];
+        sprintf(buffer, "Version mismatch (got %d, expected %d) - loading defaults",
+                config.version, CONFIG_VERSION);
+        Serial.println(buffer);
         return false;
     }
 
@@ -84,8 +87,10 @@ bool loadConfig(AppConfig &config)
     uint8_t expectedChecksum = calculateChecksum(config);
     if (config.checksum != expectedChecksum)
     {
-        Serial.printf("Checksum mismatch (got 0x%02X, expected 0x%02X) - loading defaults\n",
-                      config.checksum, expectedChecksum);
+        char buffer[80];
+        sprintf(buffer, "Checksum mismatch (got 0x%02X, expected 0x%02X) - loading defaults",
+                config.checksum, expectedChecksum);
+        Serial.println(buffer);
         return false;
     }
 
@@ -106,16 +111,25 @@ void saveConfig(AppConfig &config)
 // Print current configuration
 void printConfig(const AppConfig &config)
 {
+    char buffer[100];
     Serial.println("\nCurrent Configuration:");
     Serial.println("=====================");
-    Serial.printf("Magic: 0x%08X\n", config.magic);
-    Serial.printf("Version: %d\n", config.version);
-    Serial.printf("Device Name: %s\n", config.deviceName);
-    Serial.printf("Brightness: %d\n", config.brightness);
-    Serial.printf("Sensor Offset: %.3f\n", config.sensorOffset);
-    Serial.printf("Logging: %s\n", config.enableLogging ? "Enabled" : "Disabled");
-    Serial.printf("Sample Rate: %d Hz\n", config.sampleRate);
-    Serial.printf("Checksum: 0x%02X\n", config.checksum);
+    sprintf(buffer, "Magic: 0x%08X", config.magic);
+    Serial.println(buffer);
+    sprintf(buffer, "Version: %d", config.version);
+    Serial.println(buffer);
+    sprintf(buffer, "Device Name: %s", config.deviceName);
+    Serial.println(buffer);
+    sprintf(buffer, "Brightness: %d", config.brightness);
+    Serial.println(buffer);
+    sprintf(buffer, "Sensor Offset: %.3f", config.sensorOffset);
+    Serial.println(buffer);
+    sprintf(buffer, "Logging: %s", config.enableLogging ? "Enabled" : "Disabled");
+    Serial.println(buffer);
+    sprintf(buffer, "Sample Rate: %d Hz", config.sampleRate);
+    Serial.println(buffer);
+    sprintf(buffer, "Checksum: 0x%02X", config.checksum);
+    Serial.println(buffer);
 }
 
 void setup()
