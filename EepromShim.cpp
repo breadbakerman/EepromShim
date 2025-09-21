@@ -36,8 +36,8 @@ namespace EepromShim
         return true;
     }
 
-    template<typename T>
-    T init(const T& defaults, uint8_t flags)
+    template <typename T>
+    T init(const T &defaults, uint8_t flags)
     {
 #ifndef EEPROM_h
         if (!flash.begin())
@@ -120,8 +120,8 @@ namespace EepromShim
 #endif
     }
 
-    template<typename T>
-    T getConfig(const T& defaults, uint8_t flags)
+    template <typename T>
+    T getConfig(const T &defaults, uint8_t flags)
     {
         T config = {};
         get(EEPROM_CONFIG_ADDRESS, config);
@@ -199,6 +199,7 @@ namespace EepromShim
 
     bool load(const String &path, int16_t start, uint8_t flags)
     {
+#if __has_include(<SDCard.h>)
         if (SDCard::begin(SD_SILENT))
         {
             File file = SDCard::sd.open(path.c_str(), O_READ);
@@ -290,11 +291,13 @@ namespace EepromShim
         if (!(flags & EE_SILENT))
             SERIAL.println(F(ANSI_ERROR "Error loading EEPROM!" ANSI_DEFAULT));
 #endif
+#endif
         return false;
     }
 
     bool save(const String &path, uint16_t start, uint16_t end, uint8_t flags)
     {
+#if __has_include(<SDCard.h>)
         if (start >= EEPROM_SIZE || end >= EEPROM_SIZE || start > end)
         {
 #ifndef EEPROM_SERIAL_DISABLE
@@ -349,6 +352,7 @@ namespace EepromShim
         if (!(flags & EE_SILENT))
             SERIAL.println(F(ANSI_ERROR "Error saving EEPROM!" ANSI_DEFAULT));
 #endif
+#endif
         return false;
     }
 
@@ -379,7 +383,7 @@ namespace EepromShim
 #endif
     }
 
-    template<typename T>
+    template <typename T>
     void setConfig(const T &config, uint8_t flags)
     {
         put(EEPROM_CONFIG_ADDRESS, config);
@@ -389,7 +393,7 @@ namespace EepromShim
 #endif
     }
 
-    template<typename T>
+    template <typename T>
     void wipeConfig(uint8_t flags)
     {
         for (uint16_t i = EEPROM_CONFIG_ADDRESS; i < EEPROM_CONFIG_ADDRESS + sizeof(T); ++i)
@@ -501,4 +505,10 @@ namespace EepromShim
 #endif
         return true;
     }
+
+    // Explicit template instantiations for Configuration type
+    template Configuration init<Configuration>(const Configuration &, uint8_t);
+    template Configuration getConfig<Configuration>(const Configuration &, uint8_t);
+    template void setConfig<Configuration>(const Configuration &, uint8_t);
+    template void wipeConfig<Configuration>(uint8_t);
 }
