@@ -60,6 +60,38 @@ The library supports optional ANSI color codes for serial output. If not defined
 
 The library automatically provides fallback empty definitions if these are not defined, ensuring compilation compatibility regardless of whether color support is configured.
 
+## Template Function Requirements
+
+**Important**: The library uses template functions for type-safe operations with structured data. Due to C++ compilation requirements, template functions need explicit instantiation for custom types.
+
+### Pre-instantiated Types
+The library automatically provides template instantiation for:
+- `int` - for example usage
+- `Configuration` struct (if `config.h` is available)
+
+### Using Custom Structs
+To use template functions (`get<T>`, `put<T>`, `init<T>`, etc.) with your own structs:
+
+1. **Option 1**: Use only basic functions
+   ```cpp
+   // Use read()/write() for custom data
+   struct MyData { int value; float ratio; };
+   MyData data = {42, 3.14};
+
+   // Write manually
+   uint8_t* ptr = (uint8_t*)&data;
+   for(size_t i = 0; i < sizeof(MyData); i++) {
+       EepromShim::write(addr + i, ptr[i]);
+   }
+   ```
+
+2. **Option 2**: Add explicit template instantiation
+   ```cpp
+   // In your .cpp file, after including EepromShim.h
+   template MyData& EepromShim::get<MyData>(int, MyData&);
+   template const MyData& EepromShim::put<MyData>(int, const MyData&);
+   ```
+
 ## API Reference
 
 The library provides a complete EEPROM interface with advanced features for configuration management and flash operations.
@@ -97,18 +129,28 @@ void write(int idx, uint8_t val);         // Write single byte to address (alway
 void update(int idx, uint8_t val);        // Write single byte only if different (optimized)
 ```
 
+**Note**: Template functions (`get<T>`, `put<T>`) require explicit template instantiation for custom types. Built-in types like `int`, `float`, etc. are pre-instantiated. For custom structs, you must either:
+- Add explicit template instantiation in your project
+- Use only basic `read()`/`write()` functions for custom data structures
+
 ### Configuration Management
 
 ```cpp
-// Get current configuration from EEPROM
-Configuration getConfig(uint8_t flags = EE_NONE);
+// Template functions for advanced configuration management
+template <typename T>
+T init(const T &defaults, uint8_t flags = EE_NONE);  // Initialize with configuration struct
 
-// Save configuration to EEPROM
-void setConfig(const Configuration &config, uint8_t flags = EE_NONE);
+template <typename T>
+T getConfig(const T &defaults, uint8_t flags = EE_NONE);  // Get configuration from EEPROM
 
-// Clear configuration data
-void wipeConfig(uint8_t flags = EE_NONE);
+template <typename T>
+void setConfig(const T &config, uint8_t flags = EE_NONE);  // Save configuration to EEPROM
+
+template <typename T>
+void wipeConfig(uint8_t flags = EE_NONE);  // Clear configuration data
 ```
+
+**Important**: These template functions work automatically if you have a `config.h` file defining a `Configuration` struct. For other custom structs, you need to add explicit template instantiation in your project.
 
 ### Flash-Specific Functions (SAMD51 only)
 
