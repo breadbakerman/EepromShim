@@ -312,6 +312,8 @@ namespace EepromShim
         if (!(flags & EE_SILENT))
             SERIAL.println(F(ANSI_ERROR "Error loading EEPROM!" ANSI_DEFAULT));
 #endif
+#else
+        (void)path; (void)start; (void)flags;
 #endif
         return false;
     }
@@ -373,6 +375,8 @@ namespace EepromShim
         if (!(flags & EE_SILENT))
             SERIAL.println(F(ANSI_ERROR "Error saving EEPROM!" ANSI_DEFAULT));
 #endif
+#else
+        (void)path; (void)start; (void)end; (void)flags;
 #endif
         return false;
     }
@@ -474,6 +478,7 @@ namespace EepromShim
             return true;
         }
 #else
+        (void)flags;
         return true; // Real EEPROM always works
 #endif
     }
@@ -502,16 +507,20 @@ namespace EepromShim
         if (!(flags & EE_SILENT))
             SERIAL.println(F(EE_LOG_PREFIX ANSI_SUCCESS "Flash area erased successfully." ANSI_DEFAULT));
 #endif
+#else
+        (void)flags;
 #endif
         return true;
     }
 
 }
 
-// Explicit template instantiation for Configuration type
+// Explicit template instantiation for Configuration type (only if config.h is available)
+#if __has_include(<config.h>)
 template Configuration EepromShim::init<Configuration>(const Configuration &, uint8_t);
 template Configuration EepromShim::getConfig<Configuration>(const Configuration &, uint8_t);
 template void EepromShim::setConfig<Configuration>(const Configuration &, uint8_t);
 template void EepromShim::wipeConfig<Configuration>(uint8_t);
 template Configuration &EepromShim::get<Configuration>(int, Configuration &);
 template const Configuration &EepromShim::put<Configuration>(int, const Configuration &);
+#endif
