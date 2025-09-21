@@ -1,16 +1,9 @@
 /*
  * Config Example
- * Simple configuration storage
+ * Simple configuration storage using basic functions
  */
 
 #include "EepromShim.h"
-
-struct MyConfig
-{
-    uint8_t version = 1;
-    bool loaded = false;
-    int value = 42;
-};
 
 void setup()
 {
@@ -22,13 +15,16 @@ void setup()
 
     EepromShim::init();
 
-    MyConfig defaults;
-    MyConfig config = EepromShim::init(defaults, EE_INIT);
+    // Write a simple config value
+    int myValue = 123;
+    EepromShim::put(0, myValue);
+    Serial.println("Config saved");
 
-    Serial.print("Config loaded: ");
-    Serial.println(config.loaded ? "YES" : "NO");
-    Serial.print("Value: ");
-    Serial.println(config.value);
+    // Read it back
+    int readValue;
+    EepromShim::get(0, readValue);
+    Serial.print("Config value: ");
+    Serial.println(readValue);
 }
 
 void loop()

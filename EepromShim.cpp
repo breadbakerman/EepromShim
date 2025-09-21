@@ -313,7 +313,9 @@ namespace EepromShim
             SERIAL.println(F(ANSI_ERROR "Error loading EEPROM!" ANSI_DEFAULT));
 #endif
 #else
-        (void)path; (void)start; (void)flags;
+        (void)path;
+        (void)start;
+        (void)flags;
 #endif
         return false;
     }
@@ -376,7 +378,10 @@ namespace EepromShim
             SERIAL.println(F(ANSI_ERROR "Error saving EEPROM!" ANSI_DEFAULT));
 #endif
 #else
-        (void)path; (void)start; (void)end; (void)flags;
+        (void)path;
+        (void)start;
+        (void)end;
+        (void)flags;
 #endif
         return false;
     }
@@ -515,7 +520,6 @@ namespace EepromShim
 
 }
 
-// Explicit template instantiation for Configuration type (only if config.h is available)
 #if __has_include(<config.h>)
 template Configuration EepromShim::init<Configuration>(const Configuration &, uint8_t);
 template Configuration EepromShim::getConfig<Configuration>(const Configuration &, uint8_t);
@@ -524,3 +528,7 @@ template void EepromShim::wipeConfig<Configuration>(uint8_t);
 template Configuration &EepromShim::get<Configuration>(int, Configuration &);
 template const Configuration &EepromShim::put<Configuration>(int, const Configuration &);
 #endif
+
+// Explicit template instantiation for common types used in examples
+template int &EepromShim::get<int>(int, int &);
+template const int &EepromShim::put<int>(int, const int &);
