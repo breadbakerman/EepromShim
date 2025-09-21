@@ -2,7 +2,9 @@
 Copyright (c) 2025 by breadbaker
 MIT License */
 #include <EepromShim.h>
+#if __has_include(<SDCard.h>)
 #include <SDCard.h>
+#endif
 
 #ifndef EEPROM_h
 #define EE_LOG_PREFIX ANSI_GRAY "[EEPROM/QSPI] " ANSI_DEFAULT
