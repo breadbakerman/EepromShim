@@ -19,7 +19,25 @@ namespace EepromShim
     static Adafruit_SPIFlash flash(&flashTransport);
 #endif
 
-    Configuration init(uint8_t flags)
+    bool init(uint8_t flags)
+    {
+#ifndef EEPROM_h
+        if (!flash.begin())
+        {
+#ifndef EEPROM_SERIAL_DISABLE
+            if (!(flags & EE_SILENT))
+                SERIAL.println(F(EE_LOG_PREFIX ANSI_ERROR "Failed to initialize QSPI flash!" ANSI_DEFAULT));
+#endif
+            return false;
+        }
+#endif
+        if (flags & EE_DUMP)
+            serialDumpSample();
+        return true;
+    }
+
+    template<typename T>
+    T init(const T& defaults, uint8_t flags)
     {
 #ifndef EEPROM_h
         if (!flash.begin())
@@ -32,7 +50,7 @@ namespace EepromShim
 #endif
         if (flags & EE_DUMP)
             serialDumpSample();
-        return getConfig(flags);
+        return getConfig<T>(defaults, flags);
     }
 
     template <typename T>
@@ -102,11 +120,12 @@ namespace EepromShim
 #endif
     }
 
-    Configuration getConfig(uint8_t flags)
+    template<typename T>
+    T getConfig(const T& defaults, uint8_t flags)
     {
-        Configuration config = {};
+        T config = {};
         get(EEPROM_CONFIG_ADDRESS, config);
-        if (config.version == EEPROM_CONFIG_VERSION)
+        if (config.version == defaults.version)
         {
             if (!(flags & EE_SILENT))
                 status(true);
@@ -115,12 +134,10 @@ namespace EepromShim
         }
         else
         {
-            Configuration defaults;
-            defaults.version = EEPROM_CONFIG_VERSION;
             if (flags & EE_INIT)
             {
                 checkFlash(flags | EE_INIT);
-                setConfig(defaults);
+                setConfig<T>(defaults);
             }
             if (!(flags & EE_SILENT))
                 status(false);
@@ -362,7 +379,8 @@ namespace EepromShim
 #endif
     }
 
-    void setConfig(const Configuration &config, uint8_t flags)
+    template<typename T>
+    void setConfig(const T &config, uint8_t flags)
     {
         put(EEPROM_CONFIG_ADDRESS, config);
 #ifndef EEPROM_SERIAL_DISABLE
@@ -371,9 +389,10 @@ namespace EepromShim
 #endif
     }
 
+    template<typename T>
     void wipeConfig(uint8_t flags)
     {
-        for (uint16_t i = EEPROM_CONFIG_ADDRESS; i < EEPROM_CONFIG_ADDRESS + sizeof(Configuration); ++i)
+        for (uint16_t i = EEPROM_CONFIG_ADDRESS; i < EEPROM_CONFIG_ADDRESS + sizeof(T); ++i)
             update(i, 0xFF);
 #ifndef EEPROM_SERIAL_DISABLE
         if (!(flags & EE_SILENT))

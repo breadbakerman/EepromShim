@@ -72,16 +72,21 @@ MIT License */
 
 namespace EepromShim
 {
-    Configuration init(uint8_t flags = EE_NONE);
+    bool init(uint8_t flags = EE_NONE);
+    template <typename T>
+    T init(const T &defaults, uint8_t flags = EE_NONE);
     bool status(bool ok = false);
     void serialDumpSample(uint16_t maxSamples = 256);
     void fill(uint8_t value = 0xFF, uint16_t start = 0, uint16_t end = EEPROM_SIZE - 1, uint8_t flags = EE_NONE);
-    Configuration getConfig(uint8_t flags = EE_NONE);
+    template <typename T>
+    T getConfig(const T &defaults, uint8_t flags = EE_NONE);
     void printAddress(const uint16_t address);
     void list(uint16_t start = 0, uint16_t end = EEPROM_SIZE - 1, uint8_t flags = EE_NONE);
     bool load(const String &path, int16_t start = -1, uint8_t flags = EE_NONE);
     bool save(const String &path, uint16_t start = 0, uint16_t end = EEPROM_SIZE - 1, uint8_t flags = EE_NONE);
-    void setConfig(const Configuration &config, uint8_t flags = EE_NONE);
+    template <typename T>
+    void setConfig(const T &config, uint8_t flags = EE_NONE);
+    template <typename T>
     void wipeConfig(uint8_t flags = EE_NONE);
     bool checkFlash(uint8_t flags = EE_NONE);
     bool eraseFlash(uint8_t flags = EE_NONE);
